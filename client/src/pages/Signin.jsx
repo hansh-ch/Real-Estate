@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { SIGNIN_URL } from "../utils/constants";
 import { toast } from "react-toastify";
 import { signInStart, signInSuccess, signInFail } from "../slices/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
@@ -74,6 +75,7 @@ export default function Signin() {
           >
             Sign In
           </button>
+          <OAuth />
         </div>
         <div className="mt-2 text-center">
           <p>

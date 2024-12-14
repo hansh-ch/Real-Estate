@@ -69,4 +69,43 @@ const signinUser = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { signupUser, signinUser };
+const googleAuth = catchAsync(async (req, res, next) => {
+  const { email, name, image, photo } = req.body;
+  const user = await User.findOne({ email });
+
+  //Creating new User
+  if (!user) {
+    const generatePassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = bcrypt.hashSync(generatePassword, 10);
+    const newUser = new User({
+      email,
+      username: name.split(" ").join("").toLowerCase(),
+      password: hashedPassword,
+      avatar: photo,
+    });
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    const { password, ...rest } = newUser._doc;
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+    // return next(appError("User doesn't exists", 401));
+  }
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+  const { password, ...rest } = user._doc;
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: rest,
+    message: "Logged in successfully",
+  });
+});
+module.exports = { signupUser, signinUser, googleAuth };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { SIGNUP_URL } from "../utils/constants";
 import { toast } from "react-toastify";
+import OAuth from "../components/OAuth";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -91,6 +92,7 @@ export default function Signup() {
           >
             Sign Up
           </button>
+          <OAuth />
         </div>
         <div className="mt-2 text-center">
           <p>
