@@ -1,9 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const cors = require("cors");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:5173",
+  })
+);
 
 const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");

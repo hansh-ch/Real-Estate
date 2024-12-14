@@ -7,6 +7,9 @@ const catchAsync = require("../utils/catchAsync");
 //@access=> public route
 const signupUser = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return next(appError("All fields are required", 401));
+  }
 
   const userExists = await User.findOne({ email });
   if (userExists) {
@@ -28,8 +31,13 @@ const signupUser = catchAsync(async (req, res, next) => {
 //@route=> api/auth/signin
 //@access=> public route
 
-const signinUser = async (req, res, next) => {
+const signinUser = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
+
+  //checking if fields are empty
+  if (!email || !password) {
+    return next(appError("All fields are required", 401));
+  }
 
   //1) Finding a user with email
   const userExists = await User.findOne({ email });
@@ -48,6 +56,6 @@ const signinUser = async (req, res, next) => {
     data: user,
     message: "Logged in successfully",
   });
-};
+});
 
 module.exports = { signupUser, signinUser };
