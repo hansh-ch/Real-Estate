@@ -1,7 +1,9 @@
 const User = require("../models/userModal");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const appError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+require("dotenv").config();
 //@desc=> register a user
 //@route=> api/auth/signup
 //@access=> public route
@@ -51,6 +53,15 @@ const signinUser = catchAsync(async (req, res, next) => {
   }
   //3) Everything is OK -login user
   const user = await User.findById(userExists._id).select("-password");
+
+  //4 Creating TOKEN
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+  });
   res.status(200).json({
     status: "success",
     data: user,

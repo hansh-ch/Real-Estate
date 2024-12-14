@@ -1,17 +1,20 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { SIGNIN_URL } from "../utils/constants";
 import { toast } from "react-toastify";
+import { signInStart, signInSuccess, signInFail } from "../slices/userSlice";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.user);
 
   async function handleSubmit() {
     try {
-      setIsLoading(true);
+      dispatch(signInStart());
       const data = { email, password };
       const res = await fetch(SIGNIN_URL, {
         method: "POST",
@@ -19,24 +22,21 @@ export default function Signin() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
       const apiData = await res.json();
       if (apiData.status === "fail") {
-        setIsLoading(false);
-        setError(apiData.message);
+        dispatch(signInFail(apiData.message));
         toast.error(apiData.message);
         return;
       }
-
-      setIsLoading(false);
+      dispatch(signInSuccess(apiData));
       // navigate("/signin");
     } catch (error) {
-      setIsLoading(false);
-      setError(error.message);
+      dispatch(signInFail(error.message));
       return;
     }
   }
-  // if (error) toast.error(error.message);
   return (
     <div className="flex justify-center items-center">
       <div className="p-4 w-[35%] mx-auto bg-slate-200 rounded-md shadow-md mt-4">
