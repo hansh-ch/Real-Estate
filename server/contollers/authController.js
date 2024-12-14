@@ -1,17 +1,20 @@
 const User = require("../models/userModal");
 const bcrypt = require("bcryptjs");
+const appError = require("../utils/appError");
+const catchAsync = require("../utils/catchAsync");
 //@desc=> register a user
 //@route=> api/auth/signup
 //@access=> public route
-const signupUser = async (req, res, next) => {
+const signupUser = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
   const userExists = await User.findOne({ email });
   if (userExists) {
-    return res.json({
-      status: "fail",
-      message: "User already exists! Please login in",
-    });
+    return next(appError("User already exists! Please login in", 401));
+    // return res.json({
+    //   status: "fail",
+    //   message: "User already exists! Please login in",
+    // });
   }
   const newUser = await User.create({ username, email, password });
   res.status(200).json({
@@ -19,7 +22,7 @@ const signupUser = async (req, res, next) => {
     data: newUser,
     message: "Signed up successfully",
   });
-};
+});
 
 //@desc=> logging in user
 //@route=> api/auth/signin
@@ -31,18 +34,12 @@ const signinUser = async (req, res, next) => {
   //1) Finding a user with email
   const userExists = await User.findOne({ email });
   if (!userExists) {
-    return res.json({
-      status: "fail",
-      message: "Invalid email or password",
-    });
+    return next(appError("Invalid email or password", 401));
   }
   //2) Compare password
   const correctPassword = await bcrypt.compare(password, userExists.password);
   if (!userExists || !correctPassword) {
-    return res.json({
-      status: "fail",
-      message: "Invalid email or password",
-    });
+    return next(appError("Invalid email or password", 401));
   }
   //3) Everything is OK -login user
   const user = await User.findById(userExists._id).select("-password");
