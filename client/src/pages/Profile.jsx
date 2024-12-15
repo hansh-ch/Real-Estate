@@ -8,6 +8,9 @@ export default function Profile() {
 
   const user = useSelector((state) => state.user);
   const currentUser = user.currentUser?.data;
+
+  //update handler
+  function handleUpdateProfile() {}
   return (
     <div className="max-w-6xl mx-auto">
       <h1 className="text-xl md:text-3xl text-center font-semibold my-4">
@@ -54,7 +57,10 @@ export default function Profile() {
             </li>
 
             <li className="flex items-center gap-4 flex-wrap">
-              <button className="bg-slate-700 text-white rounded-md p-3  uppercase hover:opacity-70">
+              <button
+                className="bg-slate-700 text-white rounded-md p-3  uppercase hover:opacity-70"
+                onClick={handleUpdateProfile}
+              >
                 update
               </button>
               <button className="bg-red-600 text-white rounded-md p-3  uppercase hover:opacity-70">

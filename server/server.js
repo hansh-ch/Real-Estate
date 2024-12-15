@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
@@ -11,7 +12,7 @@ app.use(
     origin: "http://localhost:5173",
   })
 );
-
+app.use(cookieParser());
 const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");
 
