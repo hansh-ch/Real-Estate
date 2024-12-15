@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SIGNIN_URL } from "../utils/constants";
 import { toast } from "react-toastify";
 import { signInStart, signInSuccess, signInFail } from "../slices/userSlice";
@@ -11,6 +11,7 @@ export default function Signin() {
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { isLoading, error } = useSelector((state) => state.user);
 
   async function handleSubmit() {
@@ -32,6 +33,7 @@ export default function Signin() {
         return;
       }
       dispatch(signInSuccess(apiData));
+      navigate("/");
       // navigate("/signin");
     } catch (error) {
       dispatch(signInFail(error.message));

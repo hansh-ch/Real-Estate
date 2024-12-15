@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "User must provide password"],
     },
-    avatar: String,
+    avatar: {
+      type: String,
+      default: "/images/default-user",
+    },
   },
   {
     timestamps: true,

@@ -4,11 +4,12 @@ const jwt = require("jsonwebtoken");
 const appError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 require("dotenv").config();
+
 //@desc=> register a user
 //@route=> api/auth/signup
 //@access=> public route
 const signupUser = catchAsync(async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, avatar } = req.body;
   if (!username || !email || !password) {
     return next(appError("All fields are required", 401));
   }
@@ -21,7 +22,7 @@ const signupUser = catchAsync(async (req, res, next) => {
     //   message: "User already exists! Please login in",
     // });
   }
-  const newUser = await User.create({ username, email, password });
+  const newUser = await User.create({ username, email, password, avatar });
   res.status(200).json({
     status: "success",
     data: newUser,
@@ -69,12 +70,31 @@ const signinUser = catchAsync(async (req, res, next) => {
   });
 });
 
+//@desc=> register/login a user using google
+//@route=> api/auth/google
+//@access=> public route
+
 const googleAuth = catchAsync(async (req, res, next) => {
   const { email, name, image, photo } = req.body;
   const user = await User.findOne({ email });
 
-  //Creating new User
-  if (!user) {
+  //Signing user
+  if (user) {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    const { password, ...rest } = user._doc;
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: rest,
+      message: "Logged in successfully",
+    });
+  } else {
     const generatePassword = Math.random().toString(36).slice(-8);
     const hashedPassword = bcrypt.hashSync(generatePassword, 10);
     const newUser = new User({
@@ -93,19 +113,5 @@ const googleAuth = catchAsync(async (req, res, next) => {
     });
     // return next(appError("User doesn't exists", 401));
   }
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-  const { password, ...rest } = user._doc;
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-  });
-
-  res.status(200).json({
-    status: "success",
-    data: rest,
-    message: "Logged in successfully",
-  });
 });
 module.exports = { signupUser, signinUser, googleAuth };
