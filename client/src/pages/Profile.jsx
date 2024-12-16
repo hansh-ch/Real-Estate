@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { UPDATE_USER_URL } from "../utils/constants";
+import { toast } from "react-toastify";
 
 export default function Profile() {
   const [username, setUsername] = useState("");
@@ -9,8 +11,34 @@ export default function Profile() {
   const user = useSelector((state) => state.user);
   const currentUser = user.currentUser?.data;
 
+  useEffect(
+    function () {
+      if (currentUser) {
+        setUsername(() => currentUser.username);
+        setEmail(() => currentUser.email);
+      }
+    },
+    [currentUser]
+  );
+
+  const data = { username, email, password };
   //update handler
-  function handleUpdateProfile() {}
+  async function handleUpdateProfile() {
+    try {
+      const res = await fetch(UPDATE_USER_URL, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const apiData = await res.json();
+    } catch (error) {
+      console.log(error);
+      toast.error("Update failed");
+    }
+  }
   return (
     <div className="max-w-6xl mx-auto">
       <h1 className="text-xl md:text-3xl text-center font-semibold my-4">
@@ -33,7 +61,7 @@ export default function Profile() {
               <input
                 type="text"
                 className="p-3 border rounded-lg"
-                value={currentUser.username}
+                value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </li>
@@ -42,7 +70,7 @@ export default function Profile() {
               <input
                 type="text"
                 className="p-3 border rounded-lg"
-                value={currentUser.email}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </li>
@@ -51,7 +79,7 @@ export default function Profile() {
               <input
                 type="text"
                 className="p-3 border rounded-lg"
-                value={currentUser.password}
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </li>
