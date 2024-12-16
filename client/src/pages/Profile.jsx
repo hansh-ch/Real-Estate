@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { UPDATE_USER_URL } from "../utils/constants";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  DELETE_USER_URL,
+  LOGOUT_URL,
+  UPDATE_USER_URL,
+} from "../utils/constants";
 import { toast } from "react-toastify";
+import { updateUserSuccess, deleteUser, logoutUser } from "../slices/userSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const currentUser = user.currentUser?.data;
 
@@ -21,22 +30,84 @@ export default function Profile() {
     [currentUser]
   );
 
-  const data = { username, email, password };
+  let inputData;
+  if (!password) {
+    inputData = { username, email };
+  } else {
+    inputData = { username, email, password };
+  }
+
   //update handler
   async function handleUpdateProfile() {
     try {
+      setIsLoading(true);
       const res = await fetch(UPDATE_USER_URL, {
         method: "PUT",
-        body: JSON.stringify(data),
+        body: JSON.stringify(inputData),
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
       });
       const apiData = await res.json();
+      dispatch(updateUserSuccess(apiData));
+      setIsLoading(false);
+      if (apiData.status === "success") {
+        toast.success("Profile updated successfully");
+      }
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
       toast.error("Update failed");
+    }
+  }
+
+  //Delete handler
+  async function handleDeleteAccount() {
+    try {
+      setIsLoading(true);
+      const res = await fetch(DELETE_USER_URL, {
+        method: "POST",
+        body: null,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const apiData = await res.json();
+      if (apiData.status === "success") {
+        toast.success("Account deleted successfully");
+        dispatch(deleteUser());
+        navigate("/signup");
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error);
+      toast.error("Cannot delete account");
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      setIsLoading(true);
+      const res = await fetch(LOGOUT_URL, {
+        method: "POST",
+        body: null,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const apiData = await res.json();
+      if (apiData.status === "success") {
+        toast.success("Logged out success");
+        dispatch(logoutUser());
+        navigate("/signin");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("logout failed");
     }
   }
   return (
@@ -77,9 +148,9 @@ export default function Profile() {
             <li className="flex flex-col gap-2">
               <label htmlFor="password">Password:</label>
               <input
-                type="text"
+                type="password"
                 className="p-3 border rounded-lg"
-                value={password}
+                defaultValue={currentUser.password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </li>
@@ -88,13 +159,20 @@ export default function Profile() {
               <button
                 className="bg-slate-700 text-white rounded-md p-3  uppercase hover:opacity-70"
                 onClick={handleUpdateProfile}
+                disabled={isLoading}
               >
                 update
               </button>
-              <button className="bg-red-600 text-white rounded-md p-3  uppercase hover:opacity-70">
+              <button
+                className="bg-red-600 text-white rounded-md p-3  uppercase hover:opacity-70"
+                onClick={handleDeleteAccount}
+              >
                 delete account
               </button>
-              <button className="bg-red-700 text-white rounded-md p-3  uppercase hover:opacity-70">
+              <button
+                className="bg-red-700 text-white rounded-md p-3  uppercase hover:opacity-70"
+                onClick={handleLogout}
+              >
                 Sign out
               </button>
             </li>
@@ -102,52 +180,5 @@ export default function Profile() {
         </div>
       </div>
     </div>
-    // <div className="max-w-6xl mx-auto ">
-    //   <h1 className="text-xl md:text-3xl text-center font-semibold my-4">
-    //     Profile
-    //   </h1>
-    //   <div>
-    //     <ul className="max-w-[40%] mx-auto space-y-4">
-    //       <div className="flex items-center justify-center">
-    //         <img
-    //           src={currentUser.avatar}
-    //           alt="profile-image"
-    //           width={100}
-    //           height={100}
-    //           className="rounded-full"
-    //         />
-    //       </div>
-    //       <li className="flex flex-col gap-2">
-    //         <label htmlFor="username">Username:</label>
-    //         <input
-    //           type="text"
-    //           className="p-3 border rounded-lg"
-    //           value={currentUser.username}
-    //           onChange={(e) => setUsername(e.target.value)}
-    //         />
-    //       </li>
-    //       <li className="flex flex-col gap-2">
-    //         <label htmlFor="email">Email:</label>
-    //         <input
-    //           type="text"
-    //           className="p-3 border rounded-lg"
-    //           value={currentUser.email}
-    //           onChange={(e) => setEmail(e.target.value)}
-    //         />
-    //       </li>
-    //       <li>
-    //         <button className="bg-slate-700 text-white rounded-md p-3  uppercase hover:opacity-70">
-    //           update
-    //         </button>
-    //       </li>
-    //       <div className="flex items-center justify-between">
-    //         <span className="text-red-700 cursor-pointer p-3">
-    //           Delete Account
-    //         </span>
-    //         <span className="text-red-700 cursor-pointer p-3">Log Out</span>
-    //       </div>
-    //     </ul>
-    //   </div>
-    // </div>
   );
 }
