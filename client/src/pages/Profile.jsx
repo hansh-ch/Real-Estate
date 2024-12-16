@@ -101,11 +101,13 @@ export default function Profile() {
       });
       const apiData = await res.json();
       if (apiData.status === "success") {
-        toast.success("Logged out success");
+        toast.success("Log out success");
         dispatch(logoutUser());
         navigate("/signin");
       }
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
       toast.error("logout failed");
     }

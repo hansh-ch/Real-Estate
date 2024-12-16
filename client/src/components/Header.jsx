@@ -39,7 +39,7 @@ export default function Header() {
           {currentUser && (
             <li className="text-slate-700 hover:underline transition-all duration-200 border border-blue-800 rounded-lg p-2">
               <Link to="/profile">
-                <div className="flex items-center">
+                <div className="flex items-center gap-x-2">
                   <img
                     src={currentUser.avatar}
                     alt={currentUser.username}

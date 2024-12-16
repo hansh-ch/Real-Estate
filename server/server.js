@@ -15,6 +15,7 @@ app.use(
 app.use(cookieParser());
 const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");
+const listingRouter = require("./routes/listingRoutes");
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -33,6 +34,7 @@ app.listen(port, () => {
 //ROUTES
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/listing", listingRouter);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
