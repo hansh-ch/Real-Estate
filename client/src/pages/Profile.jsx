@@ -7,7 +7,7 @@ import {
 } from "../utils/constants";
 import { toast } from "react-toastify";
 import { updateUserSuccess, deleteUser, logoutUser } from "../slices/userSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const [username, setUsername] = useState("");
@@ -165,14 +165,22 @@ export default function Profile() {
               >
                 update
               </button>
+              <Link
+                to="/listing"
+                className="bg-green-600 text-white rounded-md p-3  uppercase hover:opacity-70"
+              >
+                Create Listing
+              </Link>
+            </li>
+            <li className="flex items-center justify-between flex-wrap">
               <button
-                className="bg-red-600 text-white rounded-md p-3  uppercase hover:opacity-70"
+                className=" text-red-600 rounded-md p-3  uppercase hover:opacity-70"
                 onClick={handleDeleteAccount}
               >
                 delete account
               </button>
               <button
-                className="bg-red-700 text-white rounded-md p-3  uppercase hover:opacity-70"
+                className=" text-red-700 rounded-md p-3  uppercase hover:opacity-70"
                 onClick={handleLogout}
               >
                 Sign out
