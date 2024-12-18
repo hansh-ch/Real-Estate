@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
@@ -16,6 +17,7 @@ app.use(cookieParser());
 const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");
 const listingRouter = require("./routes/listingRoutes");
+const upload = require("./utils/multer");
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -27,8 +29,16 @@ mongoose
   .then(() => console.log("MongoDB connected successfully"))
   .catch(() => console.log("DB connection error"));
 
+// const __dirname = path.resolve();
+app.use("/uploads", express.static("./uploads"));
+
 app.listen(port, () => {
   console.log(`App is running on port: ${port}`);
+});
+
+app.post("/upload", upload.single("image"), (req, res, next) => {
+  res.json({ imageURL: `/${req.file.path}` });
+  next();
 });
 
 //ROUTES
