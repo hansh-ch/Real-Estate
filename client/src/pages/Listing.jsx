@@ -1,14 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { storage, storageID } from "../utils/appwrite";
 import { ID } from "appwrite";
 import { toast } from "react-toastify";
-
+import { CREATELIST_URL } from "../utils/constants";
 const initalData = {
   name: "",
   description: "",
   address: "",
   type: "",
-  parking: true,
+  parking: false,
   furnished: false,
   bedrooms: 0,
   bathrooms: 0,
@@ -23,6 +24,7 @@ export default function Listing() {
   const [error, setError] = useState(false);
   const [formData, setFormData] = useState(initalData);
 
+  const navigate = useNavigate();
   async function handleImageUpload(e) {
     e.preventDefault();
 
@@ -80,18 +82,32 @@ export default function Listing() {
       setFormData({ ...formData, [e.target.id]: e.target.value });
     }
   }
-  console.log(formData);
+
+  //==> Handling Submit
   async function handleSubmit(e) {
-    const data = { ...formData, imgUrls: imgUrl };
     e.preventDefault();
-    // const res = await fetch(SIGNIN_URL, {
-    //   method: "POST",
-    //   body: JSON.stringify(data),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   credentials: "include",
-    // }
+    if (imgUrl.length < 1) {
+      toast.error("List must have an image");
+      return;
+    } else if (formData.discountPrice >= formData.regularPrice) {
+      toast.error("Discount price should be less than regular price");
+      return;
+    } else {
+      const data = { ...formData, imgUrls: imgUrl };
+      const res = await fetch(CREATELIST_URL, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const result = await res.json();
+      if (result.status === "success") {
+        navigate("/lists");
+        toast.success("List created succesfully");
+      }
+    }
   }
 
   return (

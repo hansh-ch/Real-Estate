@@ -57,15 +57,12 @@ const listingSchema = new mongoose.Schema(
       type: String,
       required: [true, "Provide type"],
     },
-    offer: {
-      type: Boolean,
-      required: [true, "Provide true or false"],
-    },
-    imageURLs: imageSchema,
-    userRef: {
-      type: String,
-      required: true,
-    },
+    // offer: {
+    //   type: Boolean,
+    //   required: [true, "Provide true or false"],
+    // },
+    imageURLs: Array,
+    userRef: String,
   },
   {
     timestamps: true,

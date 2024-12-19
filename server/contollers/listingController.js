@@ -23,11 +23,40 @@ console.log(imgFileName);
 // @ access==> private
 
 const createList = catchAsync(async (req, res, next) => {
-  // const list = await Listing.create(req.body);
-  // res.status(200).json({
-  //   status: "success",
-  //   message: "List created successfully",
-  //   data: list,
-  // });
+  // console.log(req.user);
+  const {
+    name,
+    description,
+    address,
+    type,
+    parking,
+    furnished,
+    bedrooms,
+    bathrooms,
+    regularPrice,
+    discountPrice,
+    imgUrls,
+  } = req.body;
+  // console.log(req.body);
+  // imageURLs
+  const list = await Listing.create({
+    name,
+    description,
+    address,
+    type,
+    parking,
+    furnished,
+    bedrooms,
+    bathrooms,
+    regularPrice,
+    discountPrice,
+    imageURLs: imgUrls,
+    userRef: req.user._id,
+  });
+  res.status(200).json({
+    status: "success",
+    message: "List created successfully",
+    // data: list,
+  });
 });
 module.exports = { createList, uploadImages };
