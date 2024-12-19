@@ -1,8 +1,12 @@
 const express = require("express");
-const { createList } = require("../contollers/listingController");
+const { createList, uploadImages } = require("../contollers/listingController");
 const { verifyUser } = require("../middlewares/protectMiddleware");
+const upload = require("../utils/multer");
 const router = express.Router();
 
 router.use(verifyUser);
+router.post("/upload", upload.array("image", 6), uploadImages);
 router.route("/create").post(createList);
+
+// router.route("/create").post(createList);
 module.exports = router;

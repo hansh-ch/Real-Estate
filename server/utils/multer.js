@@ -19,23 +19,23 @@ const storage = multer.diskStorage({
     cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
-    crypto.randomBytes(10, (err, bytes) => {
-      const fileName = bytes.toString("hex") + path.extname(file.originalname);
-      cb(null, fileName);
-    });
+    const ext = file.mimetype.split("/")[1];
+    // cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    cb(null, `user-${Date.now()}.${ext}`);
+    // crypto.randomBytes(10, (err, bytes) => {
+    //   const fileName = bytes.toString("hex") + path.extname(file.originalname);
+    //   cb(null, fileName);
+    // });
   },
 });
 
-// function checkFileType(file, cb) {
-//   const allow = /jpg|jpeg|png/;
-//   const extname = allow.test(path.extname(file.originalname).toLowerCase());
-//   const mimetype = allow.test(file.mimetype);
-//   if (extname && mimetype) {
-//     return cb(null, true);
-//   } else {
-//     cb("Images only");
-//   }
-// }
-
-const upload = multer({ storage: storage });
+//CHECKING IMAGES OR NOT
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb("Images only");
+  }
+};
+const upload = multer({ storage: storage, fileFilter: multerFilter });
 module.exports = upload;

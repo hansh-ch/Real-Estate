@@ -17,8 +17,6 @@ app.use(cookieParser());
 const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");
 const listingRouter = require("./routes/listingRoutes");
-const upload = require("./utils/multer");
-
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
@@ -36,11 +34,12 @@ app.listen(port, () => {
   console.log(`App is running on port: ${port}`);
 });
 
-app.post("/upload", upload.single("image"), (req, res, next) => {
-  res.json({ imageURL: `/${req.file.path}` });
-  next();
-});
-
+//UPLOADING FILE
+// app.post("/upload", upload.single("image"), (req, res, next) => {
+//   console.log(req.file);
+//   res.json({ imageURL: `/${req.file.path}` });
+//   next();
+// });
 //ROUTES
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);

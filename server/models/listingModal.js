@@ -1,5 +1,20 @@
 const mongoose = require("mongoose");
 
+const imageSchema = new mongoose.Schema({
+  imagePath: {
+    type: Array,
+    required: true,
+  },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
+  list: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Listing",
+  },
+});
+
 const listingSchema = new mongoose.Schema(
   {
     name: {
@@ -46,10 +61,7 @@ const listingSchema = new mongoose.Schema(
       type: Boolean,
       required: [true, "Provide true or false"],
     },
-    imageURLs: {
-      type: Array,
-      required: [true, "Provide images"],
-    },
+    imageURLs: imageSchema,
     userRef: {
       type: String,
       required: true,
@@ -61,4 +73,5 @@ const listingSchema = new mongoose.Schema(
 );
 
 const Listing = mongoose.model("Listing", listingSchema);
-module.exports = Listing;
+const Image = mongoose.model("Image", imageSchema);
+module.exports = { Listing, Image };

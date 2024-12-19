@@ -2,26 +2,12 @@ import { useState } from "react";
 import { storage, storageID } from "../utils/appwrite";
 import { ID } from "appwrite";
 import { toast } from "react-toastify";
-
-const initalData = {
-  name: "",
-  description: "",
-  address: "",
-  type: "",
-  parking: true,
-  furnished: false,
-  bedrooms: 0,
-  bathrooms: 0,
-  regularPrice: 0,
-  discountPrice: 0,
-};
 export default function Listing() {
   const [file, setFile] = useState(null);
+  const [formdata, setFormData] = useState({});
   const [imgIDs, setImgIDs] = useState([]);
-  const [imgUrl, setImgUrl] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(false);
-  const [formData, setFormData] = useState(initalData);
 
   async function handleImageUpload(e) {
     e.preventDefault();
@@ -40,16 +26,14 @@ export default function Listing() {
         setIsUploading(true);
         storage
           .createFile(storageID, ID.unique(), file[i])
-          .then(async (data) => {
+          .then((data) => {
             setImgIDs((prev) => [...prev, data.$id]);
             // console.log(data);
             setIsUploading(false);
             setError(false);
-            const url = await storage.getFileView(storageID, data.$id);
-            setImgUrl((prev) => [...prev, url]);
           })
           .catch((err) => {
-            setIsUploading(false);
+            setIsUploading;
             setError(true);
             toast.error("Upload failed ! server error");
             console.log(err);
@@ -58,44 +42,31 @@ export default function Listing() {
       }
     }
   }
-  function deleteImage(i) {
-    const ids = imgIDs.filter((_i, ind) => ind != i);
-    const res = imgUrl.filter((url, ind) => ind !== i);
-    setImgUrl(res);
-    setImgIDs(ids);
-  }
-  function handleChange(e) {
-    if (e.target.id === "sale" || e.target.id === "rent") {
-      setFormData({ ...formData, type: e.target.id });
-    }
 
-    if (e.target.id === "parking" || e.target.id === "furnished") {
-      setFormData({ ...formData, [e.target.id]: e.target.checked });
-    }
-    if (
-      e.target.type === "number" ||
-      e.target.type === "text" ||
-      e.target.type === "textarea"
-    ) {
-      setFormData({ ...formData, [e.target.id]: e.target.value });
-    }
-  }
-  console.log(formData);
-  async function handleSubmit(e) {
-    const data = { ...formData, imgUrls: imgUrl };
-    e.preventDefault();
-    // const res = await fetch(SIGNIN_URL, {
-    //   method: "POST",
-    //   body: JSON.stringify(data),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   credentials: "include",
-    // }
-  }
+  function handleCreate() {}
+  // <form
+  //       // onSubmit={(e) => e.preventDefault()}
+  //       id="form"
+  //       action="http://localhost:3000/api/listing/upload"
+  //       method="post"
+  //       encType="multipart/form-data"
+  //     >
+  //       <label htmlFor="name">Name</label>
+  //       <input type="text" id="name" name="name" />
 
+  //       <input
+  //         type="file"
+  //         onChange={(e) => setFile(e.target.files)}
+  //         multiple
+  //         accept="image/*"
+  //         name="image"
+  //       />
+
+  //       <button type="submit">Update</button>
+  //     </form>
+  console.log(imgIDs);
   return (
-    <main className="p-3 max-w-4xl mx-auto min-h-[90vh]">
+    <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-xl md:text-3xl font-semibold text-center  my-4 ">
         Create a listing
       </h1>
@@ -111,8 +82,7 @@ export default function Listing() {
               placeholder=""
               maxLength={70}
               required
-              value={formData.name}
-              onChange={handleChange}
+              onChange={(e) => setFormData(e)}
               // onChange={(e) => setName(e.target.value)}
             />
           </li>
@@ -124,8 +94,7 @@ export default function Listing() {
               id="description"
               placeholder=""
               required
-              value={formData.description}
-              onChange={handleChange}
+              onChange={(e) => setFormData(e)}
             />
           </li>
           <li className="flex flex-col gap-2 ">
@@ -137,51 +106,25 @@ export default function Listing() {
               placeholder=""
               maxLength={70}
               required
-              value={formData.address}
-              onChange={handleChange}
             />
           </li>
 
           {/* CHECKBOXES */}
           <div className="flex items-center gap-x-2 flex-wrap">
             <li className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                className="w-5"
-                id="sale"
-                onChange={handleChange}
-                // checked={formData.type === "sale"}
-              />
-              <label htmlFor="sale">Sell</label>
+              <input type="checkbox" className="w-5" id="sell" />
+              <label htmlFor="sell">Sell</label>
             </li>
             <li className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                className="w-5"
-                id="rent"
-                onChange={handleChange}
-                // checked={formData.type === "rent"}
-              />
+              <input type="checkbox" className="w-5" id="rent" />
               <label htmlFor="rent">Rent</label>
             </li>
             <li className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                className="w-5"
-                id="parking"
-                value={formData.parking}
-                onChange={handleChange}
-              />
+              <input type="checkbox" className="w-5" id="parking" />
               <label htmlFor="parking">Parking</label>
             </li>
             <li className="flex gap-2 items-center">
-              <input
-                type="checkbox"
-                className="w-5"
-                id="furnished"
-                value={formData.furnished}
-                onChange={handleChange}
-              />
+              <input type="checkbox" className="w-5" id="furnished" />
               <label htmlFor="furnished">Furnished</label>
             </li>
           </div>
@@ -195,9 +138,8 @@ export default function Listing() {
                 id="bedrooms"
                 min="1"
                 max="10"
+                defaultValue="1"
                 required
-                onChange={handleChange}
-                value={formData.bedrooms}
               />
               <label htmlFor="bedrooms">Bedrooms</label>
             </li>
@@ -208,9 +150,8 @@ export default function Listing() {
                 id="bathrooms"
                 min="1"
                 max="10"
+                defaultValue="1"
                 required
-                onChange={handleChange}
-                value={formData.bathrooms}
               />
               <label htmlFor="bathrooms">Bathrooms</label>
             </li>
@@ -222,13 +163,10 @@ export default function Listing() {
               <input
                 type="number"
                 className="p-2 w-[50%] outline-none border-gray-300 rounded-md"
-                id="regularPrice"
+                id="regPrice"
                 required
-                onChange={handleChange}
-                value={formData.regularPrice}
-                min="100"
               />
-              <label htmlFor="regularPrice">
+              <label htmlFor="regPrice">
                 regular-Price <span className="text-gray-400">($/month)</span>
               </label>
             </li>
@@ -236,11 +174,9 @@ export default function Listing() {
               <input
                 type="number"
                 className="p-2 w-[50%] outline-none border-gray-300 rounded-md"
-                id="discountPrice"
-                onChange={handleChange}
-                value={formData.discountPrice}
+                id="disPrice"
               />
-              <label htmlFor="discountPrice">discount-Price</label>
+              <label htmlFor="disPrice">discount-Price</label>
             </li>
           </div>
         </ul>
@@ -273,35 +209,10 @@ export default function Listing() {
               </button>
             </form>
           </div>
-
-          {/* Image Container */}
-          {imgUrl && (
-            <div className="overflow-y-scroll overflow-x-hidden h-[50%] mx-auto">
-              <div className="p-3 flex flex-col gap-y-4 justify-center  mx-auto">
-                {imgUrl?.map((url, i) => (
-                  <div key={i} className="flex items-center gap-x-3">
-                    <div className="p-2">
-                      <img
-                        src={url}
-                        alt="url"
-                        className=" rounded-md mx-auto "
-                      />
-                    </div>
-                    <button
-                      className="text-red-700"
-                      onClick={() => deleteImage(i)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           <button
             className="w-full p-3 bg-green-500 rounded-md outline-none mt-4 uppercase text-white"
-            // type="submit"
-            onClick={handleSubmit}
+            type="submit"
+            // onClick={handleSubmit}
           >
             Create Listing
           </button>
