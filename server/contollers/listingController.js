@@ -1,23 +1,7 @@
 const { Listing } = require("../models/listingModal");
+const appError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
-let imgFileName = [];
-
-// @desc==> upload images using multer
-// @route ==> /api/listing/upload
-// @ access==> private
-const uploadImages = catchAsync(async (req, res, next) => {
-  req.files.map((file) => {
-    imgFileName.push(file.filename);
-
-    // res.status(200).json({
-    //   status: "success",
-    // });
-  });
-
-  next();
-});
-console.log(imgFileName);
 // @desc==> create a new list
 // @route ==> /api/listing/create
 // @ access==> private
@@ -56,7 +40,25 @@ const createList = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "List created successfully",
-    // data: list,
+    data: list,
   });
 });
-module.exports = { createList, uploadImages };
+// @desc==> show  list
+// @route ==> /api/lists
+// @ access==> private
+
+const getListById = catchAsync(async (req, res, next) => {
+  if (!req.user) {
+    return next(appError("You are not logged in", 401));
+  }
+  const list = await Listing.findById(req.params.id);
+  if (!list) {
+    return next(appError("Can't find list"));
+  }
+  res.status(200).json({
+    status: "success",
+    message: "List found successfully",
+    data: list,
+  });
+});
+module.exports = { createList, getListById };

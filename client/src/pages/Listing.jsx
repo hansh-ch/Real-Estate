@@ -104,7 +104,7 @@ export default function Listing() {
       });
       const result = await res.json();
       if (result.status === "success") {
-        navigate("/lists");
+        navigate(`/lists/${result.data._id}`);
         toast.success("List created succesfully");
       }
     }
